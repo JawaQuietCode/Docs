@@ -1,0 +1,455 @@
+# Kwee-agentic — setelan non-rahasia. Rahasia ada di .env.
+
+identity:
+  name: kweewind blows
+  version: "0.3.0"
+
+# Banner label otomatis di setiap kartu AI Rich (GenAILabelPrimitive).
+# HEADER = identitas bot; FOOTER = konteks (mis. "Sumber: host"). Default pink.
+card:
+  label:
+    enabled: true
+    text: "KWEE / FIELD INTELLIGENCE"
+    detail: "FIELD JOURNAL · RESEARCH / CONTEXT / ACTION"
+    icon: "◈"
+    variant: POSITIVE
+    background: "#11252EFF"
+    textColor: "#F2F5F1FF"
+    header: true
+    footer: true
+    footerText: ""
+    footerBackground: "#B7E3DCFF"
+    footerTextColor: "#123B42FF"
+    footerShowSources: true
+
+  # Media intro (Fitur #37): tampil di SETIAP kartu, TEPAT DI BAWAH label header.
+  # Diunggah ke WhatsApp SEKALI lalu di-cache (hemat). Mode:
+  #   video    = GenAIVideoPrimitive — video diputar LANGSUNG (default)
+  #   carousel = frame video jadi gambar, bisa di-swipe
+  #   product  = GenAIProductItemCardPrimitive dengan thumbnail video
+  media:
+    # Arsip sumber memiliki assets/kwee-intro.mp4 kosong (0 byte); matikan
+    # sampai operator memasang video intro yang valid.
+    enabled: false
+    mode: video
+    path: ./assets/kwee-intro.mp4
+    title: "kweewind blows"
+    creator: "nixeon408"
+    # khusus mode carousel: jumlah frame
+    frames: 5
+
+whatsapp:
+  authDir: ./data/sessions
+  pairingCode: MARRNULL
+  # Pairing hanya untuk sesi yang belum terdaftar (state.creds.registered)
+  reconnect:
+    maxAttempts: 10
+    baseDelayMs: 3000
+    maxDelayMs: 60000
+  # Di grup, hanya balas bila bot di-mention atau pesannya balasan ke bot
+  requireMentionInGroup: true
+  # Jeda antar-pesan (ms) supaya tidak dianggap spam
+  sendDelayMs: 800
+  # PROTEKSI SESI (transport/sessionguard.js). Deteksi enumerasi perangkat
+  # DIRI (getUSyncDevices([me.id]) / ([me.lid]) = device bin + primary device)
+  # SELALU aktif & dicatat ke data/session-guard.log. Setel `true` (atau env
+  # WA_BLOCK_SELF_DEVICE_ENUM=true) untuk sekaligus MENOLAK panggilan itu.
+  # Default false: cegah bot rusak bila ada jalur sah yang butuh enumerasi diri.
+  blockSelfDeviceEnumeration: false
+
+agent:
+  maxIterations: 500
+  # PERSONA LOCK: teguhkan suara persona aktif (blok KUNCI PERSONA di ekor
+  # prompt + pengingat setelah hasil tool + satu nudge bila keluar karakter).
+  personaLock: true
+  # Batas total waktu SATU turn sebelum checkpoint. Dengan MODE BACKGROUND,
+  # transport tidak lagi menunggu satu koneksi (tak ada plafon tunggu), jadi
+  # batas ini bukan lagi pemutus tugas — ia hanya titik AMAN untuk menyimpan
+  # progres (checkpoint) lalu lanjut lewat !lanjut. 1800s memberi ruang besar
+  # untuk tugas berat (render video, install, scraper) selesai dalam satu turn.
+  timeoutSeconds: 1800
+  subagentMaxIterations: 250
+  historyProtectLastN: 20
+  compactionThreshold: 0.75
+  # Batas jumlah pesan riwayat yang dikirim ke LLM (sisanya diringkas).
+  maxHistoryMessages: 100
+  # Serialisasi per-chat: pesan beruntun tidak saling tabrakan
+  serializePerChat: true
+  # Kirim pesan "sedang dikerjakan" bila tugas berjalan lebih dari N detik,
+  # supaya pengguna tahu bot TIDAK mati saat tugas berat berjalan lama.
+  progressAfterMs: 8000
+  # Satu kartu progres yang diedit terus: HTML mini transparan, jejak tool
+  # kronologis, indikator loading animatif, skills sebagai tahap tersendiri.
+  progressModul: true
+  # Letakkan ringkasan HTML kompak sebelum jawaban AI di kartu yang sama.
+  progressHtml: true
+  # card = HTML di kartu yang sama. file = dokumen kwee-progress.html terpisah.
+  progressHtmlMode: card
+  # Jarak antar edit kartu progres (ms). Makin kecil makin terasa "mengalir",
+  # tetapi edit terlalu rapat berisiko dibatasi WhatsApp. Minimal 1500; bawaan
+  # 2500. Coba 1800 bila akunmu stabil.
+  progressTickMs: 2500
+  # MODE BACKGROUND: transport memantau job lewat /job sampai selesai.
+  # Poll pertama rapat (tugas cepat terasa cepat), berikutnya melambat.
+  jobFirstPollMs: 1200
+  jobPollMs: 4000
+  # Plafon KESELAMATAN (bukan pembatas tugas): jaring supaya job yang benar-
+  # benar macet tidak menggantung selamanya. Default 6 jam.
+  maxTaskSeconds: 21600
+  # Berapa lama sebuah job boleh MENUNGGU antrean chat (karena tugas lain masih
+  # berjalan di chat yang sama) sebelum menyerah dengan pesan yang jelas. Tanpa
+  # batas, pesan yang mengantre di belakang tugas panjang bisa "berpikir" tanpa
+  # balasan selamanya. Selagi menunggu, worker tetap mengirim heartbeat.
+  queueWaitSeconds: 1800
+  # Batas "tidak ada heartbeat" untuk job background. Worker yang masih hidup
+  # menyegarkan tanda ini tiap langkah; job yang diam lebih lama dianggap mati
+  # (mis. bot di-restart di tengah tugas) lalu DITUTUP dengan pesan yang bisa
+  # dilanjutkan (!lanjut) — bukan menggantung.
+  jobStaleSeconds: 900
+  # Sewa (lease) lock per-chat: pemegang yang sehat memperpanjang tiap langkah,
+  # penunggu boleh merampas setelah sewa kedaluwarsa. Harus lebih panjang dari
+  # satu langkah terpanjang (shell 300s + LLM 120s).
+  leaseSeconds: 600
+
+# Mode sandbox + kebijakan approval (pola Codex CLI).
+# Fallback software: container Pterodactyl kemungkinan tanpa Landlock/seccomp.
+security:
+  # ── MODE AKSES ──────────────────────────────────────────────────────────
+  # "owner"   = TANPA sandbox: path mana pun, executable apa pun, output besar,
+  #             timeout panjang. Ini default karena bot ini milik satu orang dan
+  #             dipakai untuk kerja nyata (panel Pterodactyl, video, deploy).
+  # "sandbox" = perilaku ketat lama (root proyek + allowlist + denyPaths).
+  accessMode: owner
+  # Satu-satunya penjagaan di mode owner: jangan sampai bot membunuh prosesnya
+  # sendiri (kalau bot mati, tak ada yang bisa memperbaikinya dari chat).
+  # false = benar-benar tanpa penjagaan.
+  guardSelfKill: true
+  # Rewrite command yang didukung melalui RTK sebelum eksekusi shell.
+  # Seluruh hasil rewrite divalidasi ulang; binary/timer tidak ada = fallback.
+  rtk:
+    enabled: true
+    timeoutSeconds: 2
+  sandboxMode: danger-full-access
+  approvalPolicy: never
+  preset: auto-edit
+  # ── ALLOWLIST EXECUTABLE ────────────────────────────────────────────────
+  # true  = SEMUA executable boleh (owner tepercaya; bot ini memang dimaksudkan
+  #         untuk bisa `curl`, `git`, `ffmpeg`, `yt-dlp`, `npm`, dll tanpa
+  #         menambah daftar). Di mode owner daftar di bawah tidak dipakai sama
+  #         sekali; ia hanya berlaku bila accessMode: sandbox.
+  # false = hanya nama di `allowedExecutables` di bawah yang boleh.
+  allowAllExecutables: true
+  # true = tolak kode inline interpreter (`python3 -c`, `node -e`). Default
+  # false supaya kemampuan penuh; hidupkan bila ingin allowlist benar-benar
+  # mengikat (catatan: selama interpreter diizinkan, allowlist bukan sandbox).
+  blockInlineCode: false
+  # Folder yang boleh dipakai sebagai `cwd` perintah shell (hanya mode sandbox;
+  # di mode owner cwd boleh folder mana pun).
+  execCwdRoots: []
+  allowedExecutables:
+    - node
+    - python3
+    - python
+    - bash
+    - sh
+    - git
+    - npm
+    - npx
+    - pip
+    - pip3
+    - curl
+    - wget
+    # Media (video/audio): unduh dari sumber yang sah + transcode ke H.264/AAC
+    # supaya bisa diputar inline di WhatsApp. Tool serbaguna — bukan khusus
+    # situs tertentu.
+    - yt-dlp
+    - ffmpeg
+    - ffprobe
+    - graphify
+    - rtk
+    - ls
+    - cat
+    - echo
+    - printf
+    - grep
+    - sed
+    - head
+    - tail
+    - wc
+    - mkdir
+    - cp
+    - mv
+    - touch
+    - find
+    - sort
+    - uniq
+    - awk
+    - tr
+    - cut
+    - date
+    - which
+    - env
+    - pwd
+    - diff
+    - jq
+    - tee
+    - xargs
+    - basename
+    - dirname
+    - realpath
+    - rm
+    - ln
+    - tar
+    - gzip
+    - gunzip
+    - zip
+    - unzip
+    - du
+    - df
+    - stat
+    - tree
+    - file
+    - sleep
+    - seq
+    - timeout
+    - "true"
+    - "false"
+    - test
+    # Utilitas tambahan (dipakai bila allowAllExecutables dimatikan).
+    - xxd
+    - base64
+    - sha256sum
+    - md5sum
+    - ps
+    - ss
+    - openssl
+    - zcat
+    - xz
+    - unxz
+    - rg
+    - fd
+    - timeout
+    # Engine OpenHands: CLI stack + uvx (agent-server) supaya bisa dipanggil
+    # dari shell/tool, bukan hanya dari mekanisme.
+    - agent-canvas
+    - uv
+    - uvx
+  workspaceDir: ./workspace
+  # Path yang ditolak. Di mode owner daftar ini SENGAJA hampir kosong —
+  # pembatasan path adalah sumber keluhan "tidak diizinkan" yang berulang.
+  # Yang tersisa hanya kredensial sesi WhatsApp: bocornya = akun diambil alih.
+  # Kosongkan total (`denyPaths: []`) bila bahkan itu pun ingin dibuka.
+  denyPaths:
+    - '(^|/)data/sessions(/|$)'
+    - '(^|/)data/tenants/[^/]+/sessions(/|$)'
+  # 10 KB terlalu kecil: satu `npm install` atau `git diff` langsung terpotong.
+  # 200 KB cukup untuk hampir semua keluaran nyata; pemotongan tetap terjadi
+  # (dengan penanda) supaya konteks model tidak meledak.
+  outputLimitBytes: 200000
+  # Batas satu hasil tool yang masuk ke konteks model (byte). Naikkan bila
+  # model masih mengeluh "terpotong" saat membaca berkas/log besar.
+  toolResultLimitBytes: 65536
+  # Batas waktu satu perintah shell. 300 dtk memotong `npm install`, `pip install`, render video, deploy.
+  execTimeoutSeconds: 1800
+  # Server aksi WhatsApp (Node) — dipakai tool `wa` untuk kick/promote/edit grup.
+  # Token diisi dari .env (ACTION_TOKEN); kosong = aksi WhatsApp dimatikan.
+  actionHost: 127.0.0.1
+  actionPort: 8788
+  rateLimit:
+    messagesPerMinute: 20
+    groupActionsPerMinute: 10
+  # PERAN & KEBIJAKAN TOOL (isolasi per-pemakai). Lihat security/roles.py.
+  #   primary : owner UTAMA (super-owner) — default SEMUA tool.
+  #   owner   : owner terdaftar lain — semua KECUALI tool admin.
+  #   stranger: bukan siapa-siapa — tidak boleh apa pun.
+  # `tools: ["*"]` = semua; `deny` selalu dikurangkan (menang).
+  # Gerbang KERAS: agent/loop._run_tool menolak tool di luar daftar peran,
+  # jadi model tak bisa "minta sendiri" tool terlarang lewat prompt injection.
+  roles:
+    # primary = owner UTAMA (super-owner): SEMUA tool.
+    primary:
+      tools: ["*"]
+      deny: []
+    # owner = owner terdaftar lain. Kebijakan bot ini: SEMUA tool juga
+    # (shell, curl, browser, pterodactyl_delete, plugin_write) karena setiap
+    # owner dianggap tepercaya dan pemilik menginginkan kemampuan penuh.
+    # Kalau nanti mau membatasi lagi, isi `deny:` di sini — `deny` selalu menang.
+    owner:
+      tools: ["*"]
+      deny: []
+    # user = non-owner yang diizinkan (opt-in): tool aman saja.
+    user:
+      tools: ["memory", "web_fetch", "vision", "media", "skill"]
+      deny: []
+    stranger:
+      tools: []
+
+# ── MEMORI ──────────────────────────────────────────────────────────────────
+# Batas karakter memori ruangan yang disuntikkan ke system prompt. 25.000
+# cukup untuk hasil `memory.seed --learn` (peta folder, skema tool, perintah).
+memory:
+  maxChars: 25000
+  # Mem0 OSS semantic memory is optional. Local SQLite + roomfiles stay the
+  # source of truth; enable only after Qdrant and explicit provider config are ready.
+  mem0:
+    enabled: true 
+    collection_name: kwee_memories
+    oss_config:
+      vector_store:
+        provider: qdrant
+        config:
+          host: 127.0.0.1
+          port: 6333
+      llm:
+        provider: openai
+        config:
+          model: claude-opus-5-5
+          temperature: 0.1
+      embedder:
+        provider: openai
+        config:
+          model: text-embedding-3-small
+
+# Native MCP integrations. Each server uses stdio, an explicit read-only
+# allowlist, and only the environment variables named in pass_env.
+mcp:
+  timeout_seconds: 45
+  servers:
+    graphify:
+      enabled: true
+      transport: stdio
+      command: python3
+      args: ["-m", "graphify.serve", "graphify-out/graph.json"]
+      cwd: .
+      required_files: ["graphify-out/graph.json"]
+      pass_env: [PYTHONUSERBASE]
+      required_env: []
+      read_only: true
+      allow_tools:
+        - query_graph
+        - get_node
+        - get_neighbors
+        - shortest_path
+        - get_community
+        - god_nodes
+        - graph_stats
+    github:
+      enabled: true
+      transport: stdio
+      command: docker
+      args: ["run", "-i", "--rm", "-e", "GITHUB_PERSONAL_ACCESS_TOKEN", "-e", "GITHUB_READ_ONLY", "-e", "GITHUB_LOCKDOWN_MODE", "-e", "GITHUB_TOOLSETS", "ghcr.io/github/github-mcp-server"]
+      cwd: .
+      pass_env: ["GITHUB_PERSONAL_ACCESS_TOKEN"]
+      required_env: ["GITHUB_PERSONAL_ACCESS_TOKEN"]
+      env:
+        GITHUB_READ_ONLY: "1"
+        GITHUB_LOCKDOWN_MODE: "1"
+        GITHUB_TOOLSETS: "repos,issues,pull_requests,context"
+      read_only: true
+      allow_tools:
+        - get_me
+        - get_file_contents
+        - search_code
+        - search_repositories
+        - search_commits
+        - issue_read
+        - pull_request_read
+        - list_branches
+        - list_tags
+        - list_commits
+        - get_latest_release
+
+# ── ENGINE JAWABAN ──────────────────────────────────────────────────────────
+# Backend jawaban bawaan Kwee adalah native Python (agent/main.py), sehingga
+# skill lokal, tool registry, role checks, dan MCP berjalan dalam satu jalur.
+# Canvas/OpenHands tetap tersedia sebagai mekanisme eksternal per-owner.
+engine:
+  mode: native
+  fallback: true
+
+# ── MEKANISME / ENGINE ───────────────────────────────────────────────────────
+# Engine yang membuat jawaban. `native` = loop bawaan Kwee.
+# Pilihan: native | hermes | claude | codex | canvas (OpenHands).
+#
+# BAWAAN: native Kwee agar skill lokal, jurnal, Graphify, dan GitHub MCP
+# berjalan di backend yang sama dengan registry + role gate Kwee. Engine eksternal
+# (Hermes/Claude/Codex/Canvas) tetap dapat dipilih per owner secara eksplisit.
+defaultMechanism: native
+# Pilih engine lain per owner bila perlu:
+#   ownerMechanisms:
+#     "6281234567890": native
+#
+# `canvas` memakai stack @openhands/agent-canvas (agent-server via uvx).
+# Stack dinyalakan otomatis saat pertama dipakai, lalu dipakai ulang.
+mechanisms:
+  canvas:
+    port: 8000                 # ingress (UI + API)
+    autoStart: true            # nyalakan stack sendiri bila belum hidup
+    startTimeoutSeconds: 600   # pertama kali bisa lama (uvx unduh agent-server)
+    timeoutSeconds: 1800       # batas satu tugas
+    pollSeconds: 4             # jarak pemeriksaan status percakapan
+    # apiKey: ""               # kosong = dibuat otomatis di data/canvas.key
+
+llm:
+  # Diisi dari .env: LLM_BASE_URL, LLM_API_KEY, LLM_MODEL
+  temperature: 0.7
+  # Batas token keluaran satu panggilan. 2048 terlalu kecil: satu file kode
+  # (100+ baris) langsung terpotong di tengah. 8192 memberi ruang; kalau
+  # gateway menolak nilai ini, klien LLM otomatis menurunkan (lihat
+  # llm/client.py) dan agent menyambung potongan via auto-continue.
+  maxTokens: 12288
+  # 120 dtk memotong jawaban panjang & model reasoning → "berhenti di tengah".
+  # Naikkan bila modelmu lambat (gateway ramai).
+  # Batas waktu satu panggilan LLM (detik). 120 dtk masih memotong jawaban
+  # panjang / model reasoning → bot berhenti di tengah. 600 dtk memberi ruang.
+  timeoutSeconds: 600
+  # Streaming: respons diakumulasi dari delta SSE. Lebih tahan terhadap timeout
+  # untuk keluaran panjang (12k token) dan membuat progres terlihat. Bila
+  # gateway menolak streaming, klien otomatis kembali ke non-stream.
+  stream: true
+  # Percobaan ulang untuk gangguan sesaat (429/5xx/jaringan) sebelum model
+  # dinyatakan gagal. Backoff eksponensial, menghormati header Retry-After.
+  retryMax: 4
+  # Jarak minimum antar request ke provider (lintas chat/thread), dalam detik.
+  # 10s adalah konservatif; set 0 untuk menonaktifkan. Retry-After tetap dihormati.
+  requestIntervalSeconds: 10
+  # Model VISION (multimodal), dipisah koma. HARUS model yang benar-benar bisa
+  # membaca gambar; kalau kosong, tool vision jatuh ke model utama lalu cadangan.
+  # Contoh: cx/gpt-5  (keluarga `gh/gpt-4o*` dan `gemini/*` pernah ditolak gateway)
+  visionModels: ""
+  # Sisi terpanjang gambar sebelum dikirim ke model (piksel). Gambar WhatsApp
+  # 8MB → data-URL ~11MB; diperkecil ke 1568px + JPEG q80 = 5–10x lebih kecil.
+  visionMaxPx: 1568
+
+# Pengguna non-owner memakai model utama/cadangan server dengan kuota per nomor.
+# Hanya DM yang aktif; akses grup tetap tertutup. Token dihitung dari usage API.
+publicChat:
+  enabled: true
+  allowGroups: false
+  tokenLimit: 1000000
+  windowSeconds: 129600
+  maxContextTokens: 128000
+
+# Tampilan kartu balasan.
+ui:
+  # Tampilkan ringkasan langkah (berpikir → tool → shell) di atas jawaban.
+  # Matikan bila ingin balasan polos: showTrace: false
+  showTrace: true
+  # WAJIB GenAI: setiap balasan dirakit jadi kartu (_typename), termasuk teks.
+  # false = teks biasa boleh dikirim apa adanya (fallback lama).
+  forceCard: true
+  # Isi dengan tautan panduan (https://…) untuk memunculkan tombol CTA URL
+  # "Open guide" di kartu !help. Kosong = tombol itu tidak ditampilkan.
+  helpUrl: ""
+
+# Admin grup otomatis (semua mati secara bawaan — nyalakan bila perlu).
+groupAdmin:
+  autoSpam: false      # nilai tiap pesan grup, kirim kartu peringatan bila spam
+  welcome: false       # sambut anggota baru dengan teks dari data/knowledge
+
+
+# AFK rich-card realtime endpoint. WSS requires a public HTTPS reverse proxy.
+afk:
+  publicBaseUrl: ""
+  websocketUrl: ""
+  wsTokenTtlSeconds: 43200

@@ -1,0 +1,16 @@
+{
+  "name": "kwee-agentic",
+  "version": "0.4.0",
+  "private": true,
+  "description": "kweewind blows \u2014 native WhatsApp agent with adaptive online policy, tenant-local learning, browser intelligence, and agentic tools",
+  "dependencies": {
+    "@hapi/boom": "^10.0.1",
+    "@itsliaaa/baileys": "0.3.18-final",
+    "pino": "^9.7.0",
+    "playwright": "^1.64.1"
+  },
+  "bin": {
+    "kwee": "bin/kwee"
+  },
+  "type": "module"
+}

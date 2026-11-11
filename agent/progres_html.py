@@ -1,0 +1,166 @@
+"""Render progres Kwee sebagai dokumen HTML mandiri (bukan widget/WebView)."""
+from __future__ import annotations
+
+import html
+import json
+from pathlib import Path
+from typing import Any
+
+
+FASE = {
+    "skills": "Memuat skills",
+    "think": "Berpikir",
+    "tool": "Menjalankan langkah",
+    "respond": "Menyusun jawaban",
+    "asset": "Menyiapkan asset",
+    "done": "Selesai",
+}
+
+
+def render_html(state: dict[str, Any]) -> str:
+    """Kembalikan satu dokumen HTML lengkap, self-contained, dan aman dari XSS."""
+    data = {
+        "judul": str(state.get("judul") or "kwee sedang bekerja"),
+        "persen": max(0, min(100, int(state.get("persen") or 0))),
+        "langkah": list(state.get("langkah") or [])[-12:],
+        "selesai": bool(state.get("selesai")),
+        "fase": str(state.get("fase") or "think"),
+        "skill_info": str(state.get("skill_info") or ""),
+        "detik": float(state.get("detik") or 0),
+        "jawaban": str(state.get("jawaban") or ""),
+    }
+    payload = json.dumps(data, ensure_ascii=False).replace("</", "<\\/")
+    return f'''<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>{html.escape(data["judul"])} · Kwee</title>
+  <style>
+    :root {{ color-scheme: light; --bg:#e8e5dc; --panel:#f7f5ef; --line:#d2cec2; --ink:#24251f; --muted:#686b62; --accent:#b94c2f; --good:#477456; --bad:#b44339; }}
+    * {{ box-sizing:border-box }}
+    body {{ margin:0; min-height:100vh; padding:clamp(18px,4vw,48px); background:var(--bg); color:var(--ink); font:15px/1.55 ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif; }}
+    main {{ width:min(760px,100%); margin:0 auto; }}
+    .top {{ display:flex; align-items:center; justify-content:space-between; gap:16px; margin-bottom:14px; color:var(--muted); font-size:12px; }}
+    .brand {{ display:flex; align-items:center; gap:9px; color:var(--ink); font-weight:700; letter-spacing:-.02em; }}
+    .mark {{ width:8px; height:8px; background:var(--accent); }}
+    .panel {{ overflow:hidden; border:1px solid var(--line); background:var(--panel); }}
+    header {{ padding:clamp(22px,4vw,34px); border-bottom:1px solid var(--line); }}
+    h1 {{ margin:0 0 7px; font-size:clamp(23px,4vw,31px); line-height:1.15; letter-spacing:-.04em; }}
+    .sub {{ margin:0; color:var(--muted); }}
+    .meter {{ display:flex; align-items:flex-end; justify-content:space-between; gap:16px; margin:30px 0 13px; }}
+    .number {{ font-size:clamp(42px,9vw,62px); font-weight:750; line-height:.95; letter-spacing:-.07em; font-variant-numeric:tabular-nums; }}
+    .phase {{ color:var(--accent); font-size:13px; text-align:right; }}
+    .track {{ height:8px; overflow:hidden; background:#dedacf; }}
+    .fill {{ width:0%; height:100%; background:var(--accent); transition:width 720ms cubic-bezier(.16,1,.3,1); }}
+    .meta {{ display:flex; justify-content:space-between; gap:12px; margin-top:10px; color:var(--muted); font-size:12px; font-variant-numeric:tabular-nums; }}
+    section {{ padding:24px clamp(22px,4vw,34px); }}
+    .section-title {{ display:flex; justify-content:space-between; gap:12px; margin:0 0 16px; color:var(--muted); font-size:12px; font-weight:650; }}
+    ol {{ display:grid; gap:0; margin:0; padding:0; list-style:none; }}
+    li {{ display:grid; grid-template-columns:24px minmax(0,1fr); gap:11px; padding:0 0 17px; }}
+    li:last-child {{ padding-bottom:0 }}
+    .bullet {{ display:grid; place-items:center; width:21px; height:21px; border:1px solid #9ca194; color:var(--good); font-size:11px; }}
+    li.failed .bullet {{ color:var(--bad); border-color:var(--bad); }}
+    .step-name {{ color:var(--ink); font-weight:620; overflow-wrap:anywhere; }}
+    .detail {{ display:block; margin-top:2px; color:var(--muted); font:12px/1.5 ui-monospace,SFMono-Regular,Consolas,monospace; overflow-wrap:anywhere; }}
+    .skills {{ margin-top:20px; padding-top:13px; border-top:1px solid var(--line); color:var(--muted); font-size:13px; }}
+    .foot {{ display:flex; justify-content:space-between; gap:14px; padding:14px clamp(22px,4vw,34px); border-top:1px solid var(--line); color:var(--muted); font-size:12px; }}
+    .live {{ display:inline-flex; align-items:center; gap:8px; }}
+    .live::before {{ content:""; width:7px; height:7px; background:var(--accent); animation:pulse 1.8s ease-in-out infinite; }}
+    .done .live::before {{ background:var(--good); animation:none; }}
+    @keyframes pulse {{ 50% {{ opacity:.35; transform:scale(.82) }} }}
+    @media(max-width:520px) {{ .top,.foot {{ align-items:flex-start }} .meta {{ font-size:11px }} }}
+    @media(prefers-reduced-motion:reduce) {{ *,*::before,*::after {{ animation-duration:.01ms!important; animation-iteration-count:1!important; scroll-behavior:auto!important; transition-duration:.01ms!important }} }}
+  </style>
+</head>
+<body>
+<main id="app">
+  <div class="top"><div class="brand"><span class="mark"></span>Kwee activity</div><span>Run report</span></div>
+  <article class="panel" id="panel">
+    <header>
+      <h1 id="title"></h1><p class="sub" id="subtitle">Ringkasan proses kerja dan langkah yang benar-benar tercatat.</p>
+      <div class="meter"><div class="number"><span id="percent">0</span><span style="font-size:.48em;color:var(--muted)">%</span></div><div class="phase" id="phase"></div></div>
+      <div class="track" role="progressbar" aria-label="Progres pekerjaan" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="track"><div class="fill" id="fill"></div></div>
+      <div class="meta"><span id="elapsed">0.0 detik</span><span id="status">Estimasi progres · belum selesai</span></div>
+    </header>
+    <section>
+      <div class="section-title"><span>Jejak pekerjaan</span><span id="count">0 langkah</span></div>
+      <ol id="steps"></ol>
+      <div class="skills" id="skills" hidden></div>
+      <div class="summary" id="summary" hidden><strong>Ringkasan</strong><span id="answer"></span></div>
+    </section>
+    <div class="foot"><span class="live" id="live">Sedang berjalan</span><span>kwee · local report</span></div>
+  </article>
+</main>
+<script>
+(() => {{
+  const initial = {payload};
+  const $ = (id) => document.getElementById(id);
+  let shown = 0;
+  let frame = 0;
+  const labels = {json.dumps(FASE, ensure_ascii=False)};
+  const safeText = (value) => String(value ?? '');
+  function animatePercent(target) {{
+    cancelAnimationFrame(frame);
+    const from = shown;
+    const to = Math.max(from, Math.min(100, Number(target) || 0));
+    const start = performance.now();
+    const duration = matchMedia('(prefers-reduced-motion: reduce)').matches ? 1 : 760;
+    function tick(now) {{
+      const t = Math.min(1, (now - start) / duration);
+      const eased = 1 - Math.pow(1 - t, 4);
+      shown = Math.round(from + (to - from) * eased);
+      $('percent').textContent = shown;
+      $('fill').style.width = shown + '%';
+      $('track').setAttribute('aria-valuenow', String(shown));
+      if (t < 1) frame = requestAnimationFrame(tick);
+    }}
+    frame = requestAnimationFrame(tick);
+  }}
+  function update(state) {{
+    const done = Boolean(state.selesai);
+    const pct = done ? 100 : Math.max(0, Math.min(98, Number(state.persen) || 0));
+    $('title').textContent = safeText(state.judul || initial.judul);
+    $('phase').textContent = labels[state.fase] || safeText(state.fase || 'Memproses');
+    $('elapsed').textContent = Number(state.detik || 0).toFixed(1) + ' detik';
+    $('status').textContent = done ? 'Selesai · 100%' : 'Estimasi progres · belum selesai';
+    $('live').textContent = done ? 'Selesai' : 'Sedang berjalan';
+    $('panel').classList.toggle('done', done);
+    animatePercent(pct);
+    const rows = Array.isArray(state.langkah) ? state.langkah : [];
+    $('count').textContent = rows.length + ' langkah';
+    $('steps').replaceChildren(...rows.map((item) => {{
+      const li = document.createElement('li');
+      if (item.ok === false) li.classList.add('failed');
+      const bullet = document.createElement('span'); bullet.className = 'bullet'; bullet.textContent = item.ok === false ? '×' : '✓';
+      const copy = document.createElement('div');
+      const riset = ['web_search','agent_reach','agent-reach','web_fetch','web_see'].includes(String(item.nama || '').toLowerCase());
+      const name = document.createElement('span'); name.className = 'step-name'; name.textContent = (riset ? '🔎 ' : '') + safeText(item.nama || 'Langkah');
+      copy.append(name);
+      if (item.detail) {{ const detail = document.createElement('span'); detail.className = 'detail'; detail.textContent = safeText(item.detail); copy.append(detail); }}
+      li.append(bullet, copy); return li;
+    }}));
+    const skillInfo = safeText(state.skill_info || '');
+    $('skills').hidden = !skillInfo;
+    $('skills').textContent = skillInfo ? 'Skills · ' + skillInfo : '';
+    const answer = safeText(state.jawaban || '');
+    $('summary').hidden = !answer;
+    $('answer').textContent = answer;
+  }}
+  window.kweeProgress = {{ update }};
+  update(initial);
+}})();
+</script>
+</body>
+</html>'''
+
+
+def simpan_html(state: dict[str, Any], tujuan: str | Path) -> Path:
+    """Simpan dokumen progres ke file .html dan kembalikan path absolutnya."""
+    path = Path(tujuan).expanduser().resolve()
+    if path.suffix.lower() not in {".html", ".htm"}:
+        raise ValueError("file progres harus berekstensi .html atau .htm")
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(render_html(state), encoding="utf-8")
+    return path

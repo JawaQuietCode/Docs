@@ -1,0 +1,28 @@
+# Secrets and local runtime state
+.env
+.env.*.local
+node_modules/
+.pyuser/
+.tmp/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.coverage
+
+# WhatsApp sessions, logs, transient uploads and user data
+data/inbox/
+data/media/
+data/tenants/
+data/browser/
+data/cli/
+data/audit.log
+data/memory/*.db
+data/memory/*.db-*
+data/memory/notes/
+data/canvas.key
+data/canvas/
+data/cmdbuf/
+data/logs/
+data/jobs/
+graphify-out/
+data/qdrant/

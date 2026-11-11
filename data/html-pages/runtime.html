@@ -1,0 +1,44 @@
+<style>
+  /* KWEE / COMIC NOIR: grown-up comic panel, not a toy dashboard. */
+  html,body{background:transparent;margin:0;padding:0}
+  .rt-root{--paper:#fff0f3;--ink:#321d32;--muted:#765d70;--line:#321d32;--yellow:#f1d4ad;--coral:#d85d83;--mint:#c8dfcf;
+    width:232px;height:348px;margin:0;padding:0;box-sizing:border-box;overflow:hidden;position:relative;
+    color:var(--ink);background:var(--paper);border:2px solid var(--ink);border-radius:13px;box-shadow:5px 5px 0 var(--ink);
+    font-family:system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}
+  .rt-root:after{content:"";position:absolute;right:-3px;top:0;width:54px;height:54px;pointer-events:none;opacity:.18;
+    background-image:radial-gradient(var(--ink) .8px,transparent .9px);background-size:5px 5px}
+  .rt-head{padding:12px 12px 9px;border-bottom:2px solid var(--ink);position:relative}
+  .rt-kicker{display:flex;align-items:center;justify-content:space-between;gap:5px;font-size:8px;font-weight:900;letter-spacing:.12em;text-transform:uppercase}
+  .rt-live{display:inline-flex;align-items:center;gap:4px;background:var(--mint);border:1.5px solid var(--ink);border-radius:6px;padding:2px 6px;box-shadow:2px 2px 0 var(--ink)}
+  .rt-live i{width:5px;height:5px;border-radius:50%;background:var(--ink)}
+  .rt-title{font-size:20px;line-height:1.02;font-weight:1000;letter-spacing:-.065em;margin:11px 0 0;text-transform:uppercase;max-width:170px}
+  .rt-title em{font-style:normal;color:var(--coral);text-shadow:1px 1px 0 var(--ink);-webkit-text-stroke:.35px var(--ink)}
+  .rt-sub{font-size:9px;line-height:1.35;font-weight:600;color:var(--muted);margin:6px 0 0;max-width:190px}
+  .rt-body{height:142px;padding:11px 12px 0;box-sizing:border-box}
+  .rt-rail{height:100%;display:flex;flex-direction:column;justify-content:space-between;position:relative}
+  .rt-rail:before{content:"";position:absolute;left:4px;top:7px;bottom:7px;width:2px;background:var(--ink)}
+  .rt-node{display:flex;align-items:center;gap:8px;position:relative;min-height:21px}
+  .rt-port{width:10px;height:10px;flex:none;background:var(--yellow);border:2px solid var(--ink);z-index:1;box-shadow:1px 1px 0 var(--ink)}
+  .rt-name{flex:1;min-width:0;font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.02em}
+  .rt-desc{display:none}
+  .rt-val{font-size:10px;font-weight:900;white-space:nowrap;background:#fffaf8;border:1.5px solid var(--ink);border-radius:5px;padding:2px 5px;box-shadow:2px 2px 0 var(--ink)}
+  .rt-val span{font-size:8px;margin-left:2px}
+  .rt-card{margin:5px 12px 10px;padding:8px;background:#f4d9e2;border:2px solid var(--ink);border-radius:10px;box-shadow:3px 3px 0 var(--ink)}
+  .rt-tiles{display:grid;grid-template-columns:1fr 1fr;gap:9px 10px}
+  .rt-tile b{display:block;font-size:15px;font-weight:1000;letter-spacing:-.05em;line-height:1}
+  .rt-tile span{display:block;font-size:7px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;margin-top:3px}
+  .rt-foot{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:7px 12px;border-top:2px solid var(--ink);
+    font-size:8px;font-weight:900;letter-spacing:.1em;text-transform:uppercase}
+  @media(prefers-color-scheme:dark){.rt-root{--paper:#2b192d;--ink:#fff5f1;--muted:#d7bfd0;--line:#efd4a9;--yellow:#efd4a9;--coral:#e7799b;--mint:#c9dfcf;background:var(--paper);color:var(--ink)}
+    .rt-val{background:#493149;color:var(--ink)}}
+  @media(prefers-reduced-motion:reduce){.rt-root *{animation:none!important;transition:none!important}}
+</style>
+<div class="rt-root" role="region" aria-label="Kartu status runtime">
+  <div class="rt-head"><div class="rt-kicker"><span>FIELD NOTE / {{KICKER}}</span><span class="rt-live"><i></i>ONLINE</span></div>
+    <h2 class="rt-title">{{TITLE}}</h2><p class="rt-sub">Status proses lokal. Angka yang tidak tersedia ditampilkan sebagai tanda pisah.</p></div>
+  <div class="rt-body"><div class="rt-rail">
+{{RAIL}}
+  </div></div>
+  <div class="rt-card"><div class="rt-tiles"><div class="rt-tile"><b>{{UPTIME}}</b><span>uptime proses</span></div><div class="rt-tile"><b>—</b><span>ram sistem</span></div><div class="rt-tile"><b>{{MODULES}}</b><span>modul</span></div><div class="rt-tile"><b>{{CORES}}</b><span>core</span></div></div></div>
+  <div class="rt-foot"><span>KWEE / FIELD JOURNAL</span><span>{{FOOT_RIGHT}}</span></div>
+</div>

@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+# kwee — CLI agent. Semua subperintah memakai lapisan yang sama dengan bot.
+#
+#   kwee ask "perbaiki test yang gagal"   engine OpenHands (agent-canvas)
+#   kwee canvas status|start|stop         kelola stack
+#   kwee shell "ls -la agent"             perintah shell lewat tool agent
+#   kwee knowledge status|claim_add ...   knowledge workbench SQLite lokal CLI
+#   kwee mechanisms                       engine yang tersedia
+#   kwee diag                             setelan efektif
+#   kwee serve                            jalankan inti agent (uvicorn)
+set -euo pipefail
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+cd "$ROOT"
+PY="${KWEE_PY:-python3}"
+exec "$PY" -m agent.cli "$@"

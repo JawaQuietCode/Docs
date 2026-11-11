@@ -1,0 +1,111 @@
+KWEE UPDATE REQUIRE ALL 
+UPDATE TOOLS & AGENT & NATIVE & BIN ADD assembly dan rust untuk efesien task besar dan :
+- Abstract Pattern Recognition : Mengenali struktur dan pola yang tidak bergantung pada bentuk konkret suatu informasi.
+- Universal Structure Discovery : Mencari struktur yang berulang pada berbagai domain pengetahuan.
+- Knowledge Reconciliation : Menyelesaikan perbedaan antara
+  informasi yang saling bertentangan.
+- Knowledge Decomposition : Memecah pengetahuan kompleks
+  menjadi unit yang lebih mudah dipahami.
+- Knowledge Reconstruction : Membangun kembali pengetahuan
+  menggunakan informasi parsial.
+- Knowledge Generalization : Memperluas pengetahuan agar
+  berlaku pada kondisi yang lebih luas.
+- Knowledge Specialization : Membentuk pengetahuan khusus
+  berdasarkan konsep yang lebih umum.
+- Knowledge Dependency Modeling : Memetakan ketergantungan
+  antara fakta, aturan, dan konsep.
+- Knowledge Revision : Mengubah pengetahuan ketika bukti baru
+  membantah keyakinan sebelumnya.
+- Non-monotonic Reasoning : Mengubah kesimpulan ketika muncul
+  informasi baru yang membatalkan asumsi sebelumnya.
+- Temporal Reasoning : Menalar hubungan berdasarkan urutan,
+  durasi, dan perubahan waktu.
+- Spatial Abstraction Reasoning : Menalar hubungan ruang
+  dalam representasi digital dan konseptual.
+- Causal Inference : Mengidentifikasi kemungkinan hubungan
+  sebab-akibat dari data dan asumsi kausal.
+- Counterfactual Reasoning : Mengevaluasi kemungkinan hasil
+  jika kondisi atau keputusan sebelumnya berbeda.
+- Analogical Transfer : Menerapkan struktur penyelesaian
+  masalah dari satu domain ke domain lain.
+- Multi-perspective Reasoning : Mengevaluasi masalah melalui
+  beberapa perspektif yang berbeda.
+- Adversarial Reasoning : Menguji kekuatan suatu argumen
+  melalui kemungkinan bantahan dan skenario tandingan.
+- Continual Knowledge Acquisition : Memperoleh pengetahuan
+  baru tanpa harus memulai pembelajaran dari awal.
+- Incremental Learning : Memperbarui kemampuan secara bertahap
+  menggunakan data tambahan.
+- Few-example Concept Learning : Mempelajari konsep dari
+  sejumlah kecil contoh.
+- One-shot Concept Learning : Membentuk pemahaman awal dari
+  satu contoh dengan memanfaatkan pengetahuan sebelumnya.
+- Meta-learning : Mengoptimalkan cara sistem belajar dari
+  pengalaman pada berbagai tugas.
+- Learning-to-Learn : Mengembangkan strategi pembelajaran
+  yang dapat digunakan kembali.
+- Self-supervised Representation Learning : Mempelajari
+  representasi dari struktur data tanpa label manual lengkap.
+- Active Information Acquisition : Memilih informasi baru
+  yang paling berpotensi meningkatkan pemahaman.
+- Capability Self-assessment : Mengukur kemampuan yang
+  benar-benar telah dikuasai berdasarkan pengujian.
+- Knowledge Boundary Awareness : Mengidentifikasi batas
+  pengetahuan dan informasi yang belum diketahui.
+- Cognitive Process Monitoring : Memantau proses komputasi
+  dan penalaran yang sedang berlangsung.
+- Strategy Introspection : Mengevaluasi strategi yang
+  digunakan dalam menyelesaikan masalah.
+- Confidence Calibration : Menyesuaikan tingkat keyakinan
+  dengan akurasi historis.
+- Cognitive Error Attribution : Mengidentifikasi sumber
+  kesalahan dalam proses berpikir.
+- Reasoning Strategy Adaptation : Mengganti strategi ketika
+  pendekatan sebelumnya tidak efektif.
+- Cognitive Failure Prediction : Memperkirakan kemungkinan
+  kegagalan sebelum menyelesaikan tugas.
+- Self-generated Problem Solving : Membentuk masalah latihan
+  untuk meningkatkan kemampuan tertentu.
+- Research Direction Optimization : Memilih arah penelitian
+  berdasarkan bukti, nilai, dan keterbatasan sumber daya.
+- Discovery Validation : Menguji apakah hasil eksplorasi
+  benar-benar merupakan penemuan yang valid.
+- Intellectual Development Tracking : Melacak perkembangan
+  kemampuan dan pengetahuan dalam jangka panjang.
+- Open-ended Knowledge Discovery : Mengeksplorasi ruang
+  pengetahuan tanpa daftar tugas yang sepenuhnya ditentukan.
+- Associative Retrieval : Mengambil informasi melalui
+  keterkaitan konsep dan konteks.
+- Temporal Knowledge Indexing : Mengindeks informasi
+  berdasarkan waktu dan urutan peristiwa.
+- Hierarchical Knowledge Compression : Mengompresi pengetahuan
+  tanpa menghilangkan struktur penting.
+- Memory Consolidation Engine : Menggabungkan pengalaman
+  menjadi pengetahuan jangka panjang.
+- Memory Interference Resolution : Menangani konflik antara
+  informasi lama dan informasi baru.
+- Knowledge Provenance Tracking : Melacak sumber dan riwayat
+  perubahan pengetahuan.
+- Semantic Memory Reorganization : Menyusun ulang hubungan
+  konsep berdasarkan pembelajaran baru.
+- Memory Reliability Estimation : Mengukur keandalan informasi
+  yang tersimpan.
+- Scientific Question Formation : Menghasilkan pertanyaan
+  penelitian yang dapat diuji.
+- Literature-based Hypothesis Formation : Membentuk hipotesis
+  berdasarkan literatur dan bukti yang tersedia.
+- Research Gap Identification : Menemukan pertanyaan yang
+  belum terjawab secara memadai.
+- Experimental Variable Modeling : Mengidentifikasi variabel
+  independen, dependen, dan pengganggu.
+- Experimental Methodology Construction : Menyusun metode
+  penelitian yang sesuai dengan hipotesis.
+- Statistical Hypothesis Testing : Menguji hipotesis
+  menggunakan metode statistik yang sesuai.
+- Experimental Result Analysis : Menganalisis hasil eksperimen
+  berdasarkan data aktual.
+- Replication Study Generation : Merancang eksperimen
+  untuk mereplikasi hasil penelitian.
+- Scientific Theory Evaluation : Mengevaluasi teori
+  berdasarkan konsistensi dan bukti.
+dan perbaiki fitur yang masih pajangan atau gimmick jangan di hapus buat dia berfungsi. dan buat native https://github.com/rtk-ai/rtk untuk menghemat token/request/credit

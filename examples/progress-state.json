@@ -1,0 +1,13 @@
+{
+  "judul": "Tugas selesai",
+  "persen": 100,
+  "langkah": [
+    {"kind": "think", "nama": "berpikir", "detail": "menyusun rencana", "ok": true},
+    {"kind": "shell", "nama": "bash", "detail": "ls -1 skills/external | nl && echo '---INTERNAL---' && ls -…", "ok": true}
+  ],
+  "selesai": true,
+  "fase": "done",
+  "skill_info": "skills selesai dimuat",
+  "detik": 61.4,
+  "jawaban": "Selesai."
+}
